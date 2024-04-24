@@ -1,29 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include('./partials/head') %>
-    <title>Homepage</title>
-  </head>
-  <body">
-    <%- include('./partials/nav') %>
+<head>
+  <%- include('./partials/head') %>
+  <title>Homepage</title>
+</head>
+<body>
+  <%- include('./partials/nav') %>
 
-    <div class="container mt-3 ">
-      <div class="row row-cols-4">
-        <% blogs.forEach(blog => { %>
-        <div class="col">
-          <div class="card col" style="width: 18rem">
-            <img src="<%= blog.coverImageURL %>" class="card-img-top" />
-            <div class="card-body">
-              <h5 class="card-title"><%= blog.title %></h5>
-
-              <a href="/blog/<%= blog._id %>" class="btn btn-primary">View</a>
-            </div>
+  <!-- Main container with top margin -->
+  <div class="container mt-3">
+    <!-- Row for blog cards with bottom margin -->
+    <div class="row mb-4">
+      <% blogs.forEach(blog => { %>
+      <!-- Column with bottom margin -->
+      <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+        <!-- Card with consistent width and centered content -->
+        <div class="card mx-auto" style="width: 18rem;">
+          <!-- Image with responsive width and auto height -->
+          <img src="<%= blog.coverImageURL %>" class="card-img-top" style="width: 100%; height: auto;" />
+          <!-- Card body with padding -->
+          <div class="card-body" style="padding: 1rem;">
+            <h5 class="card-title" style="margin-bottom: 0.5rem;"><%= blog.title %></h5>
+            <!-- View button with top margin -->
+            <a href="/blog/<%= blog._id %>" class="btn btn-primary" style="margin-top: 0.5rem;">View</a>
           </div>
         </div>
-        <% }) %>
       </div>
+      <% }) %>
     </div>
+  </div>
 
-    <%- include('./partials/scripts') %>
-  </body>
+  <%- include('./partials/scripts') %>
+</body>
 </html>

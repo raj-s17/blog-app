@@ -25,6 +25,25 @@ router.get("/add-new", (req, res) => {
   });
 });
 
+router.get("/:id/edit", async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      return res.status(404).send("Blog not found");
+    }
+    if (req.user._id.toString() === blog.createdBy.toString()) {
+      return res.render("editBlog", {
+        user: req.user,
+        blog,
+      });
+    } else {
+      return res.status(403).send("Unauthorized");
+    }
+  } catch (error) {
+    return res.status(500).send("Server error");
+  }
+});
+
 router.get("/:id", async (req, res) => {
   const blog = await Blog.findById(req.params.id).populate("createdBy");
   const comments = await Comment.find({ blogId: req.params.id }).populate(
@@ -33,9 +52,48 @@ router.get("/:id", async (req, res) => {
   return res.render("blog", {
     user: req.user,
     blog,
-    comments
+    comments,
   });
 });
+
+router.post("/:id/edit", upload.single("coverImage"), async (req, res) => {
+  const { title, body } = req.body;
+  let update = {};
+  if (title) {
+    update.title = title;
+  }
+  if (body) {
+    update.body = body;
+  }
+  if (req.file) {
+    update.coverImageURL = `/uploads/${req.file.filename}`;
+  }
+  try {
+    await Blog.findByIdAndUpdate(req.params.id, update);
+    return res.redirect(`/blog/${req.params.id}`);
+  } catch (error) {
+    return res.status(500).send("Server error");
+  }
+});
+
+router.post("/:id/delete", async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      return res.status(404).send("Blog not found");
+    }
+    if (req.user._id.toString() === blog.createdBy.toString()) {
+      await Blog.findByIdAndDelete(req.params.id);
+      return res.redirect(`/`);
+    } else {
+      return res.status(403).send("Unauthorized");
+    }
+  } catch (error) {
+    return res.status(500).send("Server error");
+  }
+});
+
+
 
 router.post("/comment/:blogId", async (req, res) => {
   await Comment.create({
@@ -48,13 +106,24 @@ router.post("/comment/:blogId", async (req, res) => {
 
 router.post("/", upload.single("coverImage"), async (req, res) => {
   const { title, body } = req.body;
-  const blog = await Blog.create({
-    body,
-    title,
+  let newBlog = {
     createdBy: req.user._id,
-    coverImageURL: `/uploads/${req.file.filename}`,
-  });
-  return res.redirect(`/blog/${blog._id}`);
+  };
+  if (title) {
+    newBlog.title = title;
+  }
+  if (body) {
+    newBlog.body = body;
+  }
+  if (req.file) {
+    newBlog.coverImageURL = `/uploads/${req.file.filename}`;
+  }
+  try {
+    const blog = await Blog.create(newBlog);
+    return res.redirect(`/blog/${blog._id}`);
+  } catch (error) {
+    return res.status(500).send("Server error");
+  }
 });
 
 module.exports = router;

@@ -4,6 +4,7 @@ const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const methodOverride = require("method-override");
 
 const Blog = require("./models/blog");
 
@@ -43,5 +44,6 @@ app.get("/health", (req, res) => {
 
 app.use("/user", userRoute);
 app.use("/blog", blogRoute);
+app.use(methodOverride('_method'));
 
 app.listen(PORT, () => console.log(`Server Started At PORT: ${PORT}`));
